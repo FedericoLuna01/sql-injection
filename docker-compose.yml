@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:  
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=example
+      - MYSQL_DATABASE=injection_demo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - webnet
+      
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: web_client
+    ports:
+      - "5173:5173"
+    networks:
+      - webnet
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: web_server
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
+
+volumes:
+  mysql_data:
