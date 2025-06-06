@@ -32,11 +32,6 @@ import {
 import Logo from "./ui/logo"
 
 const data = {
-  user: {
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "/avatars/asd",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -169,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )

@@ -1,0 +1,3 @@
+- [ x ] Hacer un seed a la db
+- [ x ] Cambiar el host
+- [ x ] Mostrar el user en profile card

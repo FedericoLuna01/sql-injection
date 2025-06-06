@@ -4,9 +4,9 @@ import { Navigate, Outlet } from "react-router"
 import { toast } from "sonner"
 
 const ProtectedRoute = () => {
-  const { token } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
 
-  if (!token) {
+  if (!user) {
     toast.error("Debes iniciar sesión para acceder a esta página")
     return <Navigate to="/login" replace />
   }

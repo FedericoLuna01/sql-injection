@@ -1,8 +1,12 @@
 import express from 'express'
-import mysql from 'mysql2';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { User } from './types';
+import dotenv from 'dotenv';
+import { db } from './db';
+import { seedDatabase } from './seed';
+
+dotenv.config();
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -10,23 +14,29 @@ const PORT = process.env.PORT || 3000
 app.use(express.json());
 app.use(cors())
 
-const connection = mysql.createConnection({
-  // host: 'db',  // Usando el nombre del servicio definido en docker-compose.yml
-  host: 'localhost', // Cambia a 'localhost' si estás ejecutando localmente
-  user: 'root',
-  password: 'example',
-  database: 'injection_demo',
-  // Agrego esta linea para permitir múltiples sentencias SQL
-  // Esto es necesario para que la inyección SQL funcione correctamente
-  multipleStatements: true,
-});
-
-connection.connect((err) => {
+db.connect((err) => {
   if (err) {
     console.error('Error conectando a la base de datos:', err);
     return;
   }
   console.log('Conexión a la base de datos exitosa');
+
+  // Verificar si la base de datos ya está inicializada
+  const checkSeedQuery = 'SELECT COUNT(*) AS count FROM users';
+  db.query(checkSeedQuery, (err, results) => {
+    if (err) {
+      console.error('Error verificando el estado de la base de datos:', err);
+      return;
+    }
+
+    const userCount = results[0].count;
+    if (userCount === 0) {
+      console.log('Base de datos vacía, ejecutando seedDatabase...');
+      seedDatabase();
+    } else {
+      console.log('Base de datos ya inicializada.');
+    }
+  });
 });
 
 app.get('/', (req, res) => {
@@ -46,7 +56,7 @@ app.post('/login', (req, res) => {
 
   console.log(query)
 
-  connection.query(query, (err, results: User[]) => {
+  db.query(query, (err, results: User[]) => {
 
     if (err) {
       console.error('Error ejecutando la consulta:', err);
@@ -79,7 +89,7 @@ app.get('/search', (req, res) => {
   // Vulnerable: inserta el parámetro directamente en la consulta
   const query = `SELECT * FROM users WHERE email = '${q}'`;
 
-  connection.query(query, (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
       console.error('Error ejecutando la consulta:', err);
       res.status(500).json({ error: "Error del servidor" });
@@ -87,6 +97,36 @@ app.get('/search', (req, res) => {
     }
     res.status(200).json(results);
   });
+});
+
+// Endpoint para reiniciar la base de datos
+app.post('/reset-database', (req, res) => {
+  const resetQuery = `
+    DROP DATABASE IF EXISTS injection_demo;
+    CREATE DATABASE injection_demo;
+    USE injection_demo;
+  `;
+
+  try {
+    db.query(resetQuery, (err) => {
+      if (err) {
+        console.error('Error reiniciando la base de datos:', err);
+        res.status(500).json({ error: 'Error del servidor al reiniciar la base de datos' });
+        return;
+      }
+
+      console.log('Base de datos reiniciada correctamente');
+      seedDatabase();
+      res.status(200).json({ success: 'Base de datos reiniciada y seed ejecutado correctamente' });
+    });
+  } catch (error) {
+    console.error('Error al construir la consulta de reinicio:', error);
+    res.status(500).json({ error: 'Error del servidor al reiniciar la base de datos' });
+    return;
+
+  }
+
+
 });
 
 app.listen(PORT, () => {

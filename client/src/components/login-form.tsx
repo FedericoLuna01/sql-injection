@@ -1,8 +1,9 @@
+import { Eye, EyeClosed, LoaderCircleIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Eye, EyeClosed } from "lucide-react";
-import { useState, useContext } from "react";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/form"
 import { toast } from "sonner"
 import { AuthContext } from "@/contexts/auth-context/auth-context"
-import { useNavigate } from "react-router";
 
 const formSchema = z.object({
   email: z.string().min(2, { message: "El email es obligatorio" }).max(100),
@@ -36,17 +36,19 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "john@example.com",
+      email: "",
       password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
     fetch("http://localhost:3000/login", {
       method: "POST",
       headers: {
@@ -73,6 +75,9 @@ export function LoginForm({
       .catch((error) => {
         toast.error("Error al iniciar sesión");
         console.error("Error al iniciar sesión:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
 
@@ -114,11 +119,14 @@ export function LoginForm({
                             <div className="relative">
                               <Input
                                 type={showPassword ? "text" : "password"}
+                                placeholder="********"
                                 {...field}
                               />
                               <button
                                 type="button"
                                 className="absolute top-1/2 bottom-1/2 right-0 flex items-center mr-2 hover:cursor-pointer"
+                                tabIndex={-1}
+                                aria-label="Toggle password visibility"
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? <EyeClosed /> : <Eye />}
@@ -131,16 +139,15 @@ export function LoginForm({
                     />
                   </div>
                   <div className="flex flex-col gap-3">
-                    <Button type="submit" className="w-full">
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      {loading && <LoaderCircleIcon className="animate-spin duration-200" />}
                       Iniciar sesión
                     </Button>
                   </div>
-                </div>
-                <div className="mt-4 text-center text-sm">
-                  ¿No tienes una cuenta?{" "}
-                  <a href="#" className="underline underline-offset-4">
-                    Regístrate
-                  </a>
                 </div>
               </form>
             </Form>

@@ -26,6 +26,14 @@ Aplicación web didáctica que simula un sistema vulnerable a SQL injection, cre
    git clone https://github.com/FedericoLuna01/sql-injection
    ```
 
+### Utilizando docker compose
+
+1. Correr este comando:
+
+   ```bash
+      docker compose up --build
+   ```
+
 2. Instalar dependencias en server y client
 
    ```bash
@@ -60,7 +68,8 @@ Aplicación web didáctica que simula un sistema vulnerable a SQL injection, cre
 2. Ejecución de comandos:
 
    ```bash
-   Usuario: '; DROP TABLE test; --
+      Usuario: '; DROP TABLE test; --
+      Contraseña: Cualquier valor
    ```
 
 3. Extracción de datos:
