@@ -1,3 +1,4 @@
 - [ x ] Hacer un seed a la db
 - [ x ] Cambiar el host
 - [ x ] Mostrar el user en profile card
+- [ x ] Agregar un switch de dev mode. Serviría para ver que consulta se esta ejecutando realmente y para que no inicie sesión / se guarde o genere el token

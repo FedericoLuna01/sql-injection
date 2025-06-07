@@ -60,7 +60,7 @@ app.post('/login', (req, res) => {
 
     if (err) {
       console.error('Error ejecutando la consulta:', err);
-      res.status(500).json({ error: "Error del servidor" });
+      res.status(500).json({ error: "Error del servidor", query });
       return;
     }
 
@@ -70,9 +70,9 @@ app.post('/login', (req, res) => {
         expiresIn: '7d',
       })
 
-      res.status(200).json({ success: "Login exitoso", token });
+      res.status(200).json({ success: "Login exitoso", token, query });
     } else {
-      res.status(401).json({ error: "Credenciales incorrectas" });
+      res.status(401).json({ error: "Credenciales incorrectas", query });
     }
   });
 });
