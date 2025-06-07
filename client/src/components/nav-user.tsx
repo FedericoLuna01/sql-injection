@@ -26,13 +26,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useContext } from "react"
-import { AuthContext } from "@/contexts/auth-context/auth-context"
 import { toast } from "sonner"
+import useUserStore from "@/stores/user-store"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
-  const { logout, user } = useContext(AuthContext)
+  const { logout, user } = useUserStore()
 
   if (!user) return null
 

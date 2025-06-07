@@ -1,6 +1,6 @@
 import { Eye, EyeClosed, LoaderCircleIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,7 +24,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { toast } from "sonner"
-import { AuthContext } from "@/contexts/auth-context/auth-context"
+import useUserStore from "@/stores/user-store";
+import { useDevModeStore } from "@/stores/dev-mode-store";
 
 const formSchema = z.object({
   email: z.string().min(2, { message: "El email es obligatorio" }).max(100),
@@ -38,7 +39,8 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login } = useUserStore()
+  const { redirectToAdmin, addLog } = useDevModeStore();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,13 +65,23 @@ export function LoginForm({
         console.log("Respuesta del servidor:", data);
 
         if (data.error) {
+          addLog({
+            query: data.query,
+            timestamp: new Date().toISOString(),
+          });
           toast.error(data.error || "Error al iniciar sesión");
           return;
         }
 
         toast.success(data.success || "Login exitoso");
 
+        addLog({
+          query: data.query,
+          timestamp: new Date().toISOString(),
+        });
+
         login(data.token);
+        if (!redirectToAdmin) return
         navigate("/admin")
       })
       .catch((error) => {

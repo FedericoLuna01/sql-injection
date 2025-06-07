@@ -1,8 +1,10 @@
 import { Link } from "react-router"
 import Logo from "./ui/logo"
-import ResetDbDialog from "./reset-db-dialog"
+import { useDevModeStore } from "@/stores/dev-mode-store"
+import { DevSwitch } from "./dev-switch"
 
 const Header = () => {
+  const { toggleDevMode, devMode } = useDevModeStore()
   return (
     <header className="px-4 lg:px-6 h-16 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex items-center justify-center fixed top-0 left-0 right-0 z-50">
       <div className="container flex items-center">
@@ -21,7 +23,12 @@ const Header = () => {
           <Link to="/admin" className="text-sm font-medium hover:text-red-600 transition-colors">
             Admin
           </Link>
-          <ResetDbDialog />
+          <DevSwitch
+            checked={devMode}
+            onCheckedChange={toggleDevMode}
+            id="dev-mode-switch"
+            aria-label="Toggle Dev Mode"
+          />
         </nav>
       </div>
     </header>

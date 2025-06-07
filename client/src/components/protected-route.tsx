@@ -1,10 +1,9 @@
-import { AuthContext } from "@/contexts/auth-context/auth-context"
-import { useContext } from "react"
+import useUserStore from "@/stores/user-store"
 import { Navigate, Outlet } from "react-router"
 import { toast } from "sonner"
 
 const ProtectedRoute = () => {
-  const { user } = useContext(AuthContext)
+  const { user } = useUserStore()
 
   if (!user) {
     toast.error("Debes iniciar sesión para acceder a esta página")
